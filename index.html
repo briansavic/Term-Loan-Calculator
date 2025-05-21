@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Loan Calculator</title>
+    <style>
+        :root {
+            --primary-color: #4338ca;
+            --primary-hover: #3730a3;
+            --secondary-color: #e5e7eb;
+            --success-color: #059669;
+            --text-color: #1f2937;
+            --light-bg: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 50%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .calculator-card {
+            background: var(--white);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+            padding: 2rem;
+            color: var(--white);
+        }
+
+        .calculator-body {
+            padding: 2.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .currency {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        input[type="text"] {
+            padding-left: 2rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .results {
+            margin-top: 3rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .summary-card p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .table-container {
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--white);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        th {
+            background: var(--light-bg);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .download-btn {
+            margin-top: 1rem;
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .download-btn:hover {
+            background: #047857;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .calculator-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-card">
+            <div class="header">
+                <h1>Business Loan Calculator</h1>
+            </div>
+            <div class="calculator-body">
+                <form id="loanForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="loanAmount">Loan Amount</label>
+                            <div class="input-group">
+                                <span class="currency">$</span>
+                                <input type="text" id="loanAmount" required placeholder="Enter loan amount">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="interestRate">Interest Rate (%)</label>
+                            <input type="number" id="interestRate" required min="0.1" step="0.1" placeholder="Enter interest rate">
+                        </div>
+                        <div class="form-group">
+                            <label for="loanTerm">Loan Term (Years)</label>
+                            <input type="number" id="loanTerm" required min="1" max="25" placeholder="Enter loan term">
+                        </div>
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentFrequency">Payment Frequency</label>
+                            <select id="paymentFrequency" required>
+                                <option value="monthly">Monthly</option>
+                                <option value="quarterly">Quarterly</option>
+                                <option value="annually">Annually</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary">Calculate</button>
+                        <button type="button" id="resetBtn" class="btn btn-secondary">Reset</button>
+                    </div>
+                </form>
+
+                <div id="results" class="results hidden">
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <h3>Payment Amount</h3>
+                            <p id="monthlyPayment">$0.00</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Total Interest</h3>
+                            <p id="totalInterest">$0.00</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Total Payment</h3>
+                            <p id="totalPayment">$0.00</p>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <button id="downloadBtn" class="btn download-btn">Download Schedule</button>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Payment Date</th>
+                                    <th>Payment</th>
+                                    <th>Principal</th>
+                                    <th>Interest</th>
+                                    <th>Remaining Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="amortizationTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize state
+            let amortizationSchedule = [];
+            let payment = 0;
+            let totalInterest = 0;
+
+            // Set default date to today
+            document.getElementById('startDate').valueAsDate = new Date();
+
+            // Format loan amount input with commas
+            const loanAmountInput = document.getElementById('loanAmount');
+            loanAmountInput.addEventListener('input', function(e) {
+                // Remove any non-numeric characters
+                let value = this.value.replace(/[^\d]/g, '');
+                // Format with commas
+                if (value) {
+                    value = parseInt(value).toLocaleString('en-US');
+                }
+                this.value = value;
+            });
+
+            // Form submission handler
+            document.getElementById('loanForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                calculateLoan();
+            });
+
+            // Reset button handler
+            document.getElementById('resetBtn').addEventListener('click', resetCalculator);
+
+            // Download button handler
+            document.getElementById('downloadBtn').addEventListener('click', downloadSchedule);
+
+            function calculateLoan() {
+                // Get input values
+                const principal = parseFloat(document.getElementById('loanAmount').value.replace(/,/g, ''));
+                const annualRate = parseFloat(document.getElementById('interestRate').value);
+                const years = parseInt(document.getElementById('loanTerm').value);
+                const frequency = document.getElementById('paymentFrequency').value;
+                const startDate = new Date(document.getElementById('startDate').value);
+
+                // Validate inputs
+                if (!principal || !annualRate || !years) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                if (principal <= 0 || annualRate <= 0 || years <= 0 || years > 25) {
+                    alert('Please enter valid positive numbers (maximum 25 years)');
+                    return;
+                }
+
+                // Calculate payment frequency
+                let numberOfPayments;
+                let ratePerPeriod;
+                let paymentInterval;
+
+                switch(frequency) {
+                    case 'annually':
+                        numberOfPayments = years;
+                        ratePerPeriod = annualRate / 100;
+                        paymentInterval = 12;
+                        break;
+                    case 'quarterly':
+                        numberOfPayments = years * 4;
+                        ratePerPeriod = annualRate / 400;
+                        paymentInterval = 3;
+                        break;
+                    default: // monthly
+                        numberOfPayments = years * 12;
+                        ratePerPeriod = annualRate / 1200;
+                        paymentInterval = 1;
+                }
+
+                // Calculate payment using the loan amortization formula
+                payment = (principal * ratePerPeriod * Math.pow(1 + ratePerPeriod, numberOfPayments)) / 
+                         (Math.pow(1 + ratePerPeriod, numberOfPayments) - 1);
+
+                // Calculate amortization schedule
+                let balance = principal;
+                totalInterest = 0;
+                amortizationSchedule = [];
+                let currentDate = new Date(startDate);
+
+                for (let i = 1; i <= numberOfPayments; i++) {
+                    const interest = balance * ratePerPeriod;
+                    const principalPaid = payment - interest;
+                    balance = Math.max(0, balance - principalPaid);
+                    totalInterest += interest;
+
+                    amortizationSchedule.push({
+                        date: new Date(currentDate),
+                        payment: payment,
+                        principalPaid: principalPaid,
+                        interestPaid: interest,
+                        remainingBalance: balance
+                    });
+
+                    // Add months based on payment frequency
+                    currentDate.setMonth(currentDate.getMonth() + paymentInterval);
+                }
+
+                displayResults();
+            }
+
+            function displayResults() {
+                // Show results section
+                document.getElementById('results').classList.remove('hidden');
+
+                // Update summary cards
+                document.getElementById('monthlyPayment').textContent = formatCurrency(payment);
+                document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
+                document.getElementById('totalPayment').textContent = formatCurrency(payment * amortizationSchedule.length);
+
+                // Update amortization table
+                const tableBody = document.getElementById('amortizationTable');
+                tableBody.innerHTML = '';
+
+                amortizationSchedule.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${formatDate(row.date)}</td>
+                        <td>${formatCurrency(row.payment)}</td>
+                        <td>${formatCurrency(row.principalPaid)}</td>
+                        <td>${formatCurrency(row.interestPaid)}</td>
+                        <td>${formatCurrency(row.remainingBalance)}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                // Scroll to results
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function resetCalculator() {
+                // Reset form and state
+                document.getElementById('loanForm').reset();
+                document.getElementById('startDate').valueAsDate = new Date();
+                document.getElementById('results').classList.add('hidden');
+                amortizationSchedule = [];
+                payment = 0;
+                totalInterest = 0;
+            }
+
+            function downloadSchedule() {
+                // Create CSV content
+                const headers = ['Payment Date,Payment,Principal,Interest,Remaining Balance\n'];
+                const csvContent = amortizationSchedule.map(row => 
+                    `${formatDate(row.date)},${row.payment.toFixed(2)},${row.principalPaid.toFixed(2)},${row.interestPaid.toFixed(2)},${row.remainingBalance.toFixed(2)}`
+                ).join('\n');
+
+                // Create and download file
+                const blob = new Blob([headers + csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'amortization-schedule.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+
+            function formatCurrency(number) {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(number);
+            }
+
+            function formatDate(date) {
+                return new Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }).format(date);
+            }
+        });
+    </script>
+</body>
+</html>
